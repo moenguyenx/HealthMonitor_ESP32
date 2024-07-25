@@ -65,4 +65,4 @@ void setupDisplay(void);
  * @param heartRate
  * @param validHeartRate
  */
-void displayData(uint16_t spo2, uint8_t validSpo2, int32_t heartRate, int8_t validHeartRate);
+void displayData(uint16_t spo2, uint8_t validSPO2, int32_t heartRate, int8_t validHeartRate);
