@@ -34,6 +34,7 @@ static const unsigned char PROGMEM logo3_bmp[] =
 #define SCREEN_WIDTH    128   // OLED display width, in pixels
 #define SCREEN_HEIGHT   64    // OLED display height, in pixels
 #define OLED_RESET      -1    // Reset pin # (or -1 if sharing Arduino reset pin)
+#define OLED_I2C_ADDR   0x3C
 
 /*======================================================================================================================
  *                                                      ENUMS
@@ -52,6 +53,16 @@ static const unsigned char PROGMEM logo3_bmp[] =
 ======================================================================================================================*/
 
 /**
- * @brief 
+ * @brief Initalize LCD
  * 
  */
+void setupDisplay(void);
+
+/**
+ * @brief Display Data to LCD
+ * @param SPO2
+ * @param validSPO2
+ * @param heartRate
+ * @param validHeartRate
+ */
+void displayData(uint16_t spo2, uint8_t validSpo2, int32_t heartRate, int8_t validHeartRate);
