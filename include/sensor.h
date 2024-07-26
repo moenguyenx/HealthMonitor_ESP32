@@ -24,7 +24,20 @@
 /*======================================================================================================================
  *                                              GLOBAL VARIABLE DECLARATIONS
 ======================================================================================================================*/
+#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
+uint16_t irBuffer[50];
+uint16_t redBuffer[50];
+#else
+uint32_t irBuffer[100];
+uint32_t redBuffer[100];
+#endif
 
+byte ledBrightness = 60;
+byte sampleAverage = 4;
+byte ledMode = 2;
+byte sampleRate = 100;
+int pulseWidth = 411;
+int adcRange = 4096;
 /*======================================================================================================================
  *                                                  FUNCTION PROTOTYPES
 ======================================================================================================================*/
@@ -55,7 +68,7 @@ class HeartRateSensor
         /**
          * @brief Get the Beat Avg object
          * 
-         * @return int 
+         * @return int
          */
         int getBeatAvg() const;
 
