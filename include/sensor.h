@@ -7,6 +7,7 @@
 #include <Arduino.h>
 #include "MAX30105.h"
 #include "heartRate.h"
+#include "spo2_algorithm.h"
 /*======================================================================================================================
  *                                                  CONSTANTS
 ======================================================================================================================*/
@@ -16,7 +17,11 @@
 /*======================================================================================================================
  *                                                      ENUMS
 ======================================================================================================================*/
-
+typedef enum
+{
+    SENSOR_OK,
+    SENSOR_ERR
+}sensorStatus;
 /*======================================================================================================================
  *                                              STRUCTURES AND OTHER TYPEDEFS
 ======================================================================================================================*/
@@ -27,8 +32,8 @@
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
 // Arduino Uno doesn't have enough SRAM to store 100 samples of IR led data and red led data in 32-bit format
 // To solve this problem, 16-bit MSB of the sampled data will be truncated. Samples become 16-bit data.
-uint16_t irBuffer[50];
-uint16_t redBuffer[50];
+uint16_t irBuffer[100];
+uint16_t redBuffer[100];
 #else
 // For ESP Chips
 uint32_t irBuffer[100];
@@ -47,41 +52,12 @@ int adcRange = 4096;
 
 class HeartRateSensor 
 {
-    public:
-        HeartRateSensor();
-        /**
-         * @brief Initialize MAX3010x Sensor
-         * 
-         */
-        void begin();
+public:
+    HeartRateSensor();
+    sensorStatus begin();
+    bool readSamples(uint32_t* redBuffer, uint32_t* irBuffer, int32_t bufferLength);
+    void calculate(int32_t* spo2, int8_t* validSPO2, int32_t* heartRate, int8_t* validHeartRate);
 
-        /**
-         * @brief Get Constant Update of BPM and SPO2
-         * 
-         */
-        void update();
-
-        /**
-         * @brief Get the Beats Per Minute object
-         * 
-         * @return Float
-         */
-        float getBeatsPerMinute() const;
-
-        /**
-         * @brief Get the Beat Avg object
-         * 
-         * @return int
-         */
-        int getBeatAvg() const;
-
-    private:
-        MAX30105 particleSensor;
-        const byte RATE_SIZE = 4; // Increase this for more averaging. 4 is good.
-        byte rates[4]; // Array of heart rates
-        byte rateSpot = 0;
-        long lastBeat = 0; // Time at which the last beat occurred
-
-        float beatsPerMinute;
-        int beatAvg;
+private:
+    MAX30105 particleSensor;
 };
