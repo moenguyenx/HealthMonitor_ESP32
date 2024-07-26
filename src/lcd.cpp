@@ -1,42 +1,96 @@
 #include "lcd.h"
+#include "buzzer.h"
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+LCD::LCD() : display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET) {}
 
-void setupDisplay()
-{
+lcdStatus LCD::setupDisplay()
+{   
+    lcdStatus status;
+    status = LCD_OK;
     if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR)) 
     {
+        status = LCD_ERR;
+        beepBuzzer(ERR_BEEP);
         Serial.println(F("SSD1306 allocation failed"));
         for (;;);
     }
+    display.display();
+    delay(1000);
     display.clearDisplay();
     display.setTextSize(1);
-    display.setTextColor(WHITE);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 0);
+    beepBuzzer(OK_BEEP);
+    display.println(F("Display OK"));
+    display.display();
+    delay(1000);
+
+    return status;
 }
 
-void displayData(uint16_t spo2, uint8_t validSPO2, int32_t heartRate, int8_t validHeartRate)
-{
-    display.clearDisplay();
-    display.setCursor(0, 0);
+void LCD::displayMessage(const char* message) {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.println(message);
+  display.display();
+}
 
-    display.print("HR=");
-    display.print(heartRate);
-    display.print(" bpm");
+void LCD::displayPercentage(float percentage) {
+  display.clearDisplay();
+  display.setCursor(20, 10);
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.print("Measuring...");
+  display.setCursor(20, 26);
+  display.setTextSize(2);
+  display.print((int)percentage);
+  display.println("%");
+  display.display();
+}
 
-    display.print("\nSPO2=");
-    display.print(spo2);
-    display.print(" %");
+void LCD::displayReadings(int heartRate, int spo2) {
+  display.clearDisplay();
+  display.drawBitmap(5, 5, logo2_bmp, 24, 21, WHITE);
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(50,8);
+  display.print(heartRate);
+  display.println("bpm");
+  display.setCursor(0,40);
+  display.print("SPO2:");
+  display.print(spo2);
+  display.println("%");
+  display.display();
+}
 
-    if (!validSPO2 || !validHeartRate) 
-    {
-        display.clearDisplay();
-        display.setCursor(30,5);
-        display.println("Please Place ");
-        display.setCursor(30,15);
-        display.println("Your Finger ");
-        display.display();
-        noTone(13);
-    }
+void LCD::displayHeartBeat(int heartRate, int spo2) {
+  display.clearDisplay();
+  display.drawBitmap(0, 0, logo3_bmp, 32, 32, WHITE);
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(50,8);
+  display.print(heartRate);
+  display.println("bpm");
+  display.setCursor(0,40);
+  display.print("SPO2:");
+  display.print(spo2);
+  display.println("%");
+  display.display();
+}
 
-    display.display();
+void LCD::displayFingerMessage() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(30,10);
+  display.println("Please Place ");
+  display.setCursor(30,20);
+  display.println("Your Finger ");
+  display.display();
+}
+
+void LCD::clear() {
+  display.clearDisplay();
 }

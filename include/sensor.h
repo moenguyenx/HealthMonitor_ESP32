@@ -25,9 +25,12 @@
  *                                              GLOBAL VARIABLE DECLARATIONS
 ======================================================================================================================*/
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
+// Arduino Uno doesn't have enough SRAM to store 100 samples of IR led data and red led data in 32-bit format
+// To solve this problem, 16-bit MSB of the sampled data will be truncated. Samples become 16-bit data.
 uint16_t irBuffer[50];
 uint16_t redBuffer[50];
 #else
+// For ESP Chips
 uint32_t irBuffer[100];
 uint32_t redBuffer[100];
 #endif
