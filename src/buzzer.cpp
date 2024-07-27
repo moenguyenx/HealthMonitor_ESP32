@@ -1,17 +1,17 @@
 #include "buzzer.h"
 
 void beepBuzzer(int beepNum) {
-  unsigned long previousMillis = 0;
-  int currentBeep = 0;
+    unsigned long previousMillis = 0;
+    int currentBeep = 0;
 
-  while (currentBeep < beepNum) 
-  {
-    unsigned long currentMillis = millis();
-    if(currentMillis - previousMillis >= BEEP_INTERVAL)
+    while (currentBeep < beepNum) 
     {
-      tone(BUZZER_PIN, 1000, BEEP_DURATION);
-      previousMillis = currentMillis;
-      currentBeep++;
-    }
-  } 
+        unsigned long currentMillis = millis();
+        if(currentMillis - previousMillis >= BEEP_INTERVAL)
+        {
+            tone(BUZZER_PIN, 1000, BEEP_DURATION);
+            previousMillis = currentMillis;
+            currentBeep++;
+        }
+    } 
 }
