@@ -8,6 +8,7 @@
 #include <Wire.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
+#pragma once
 /*======================================================================================================================
  *                                                  CONSTANTS
 ======================================================================================================================*/
@@ -65,11 +66,47 @@ public:
     * @return Status code
     */
     lcdStatus setupDisplay();
+
+    /**
+     * @brief Input message to display
+     * 
+     * @param char* message 
+     */
     void displayMessage(const char* message);
+
+    /**
+     * @brief Measuring status
+     * 
+     * @param float percentage 
+     */
     void displayPercentage(float percentage);
+
+    /**
+     * @brief Display HeartRate & SPO2 value
+     * 
+     * @param int heartRate 
+     * @param int spo2 
+     */
     void displayReadings(int heartRate, int spo2);
+
+    /**
+     * @brief Display bigger Heart icon, SPO2 value
+     * 
+     * @param int heartRate 
+     * @param int spo2 
+     */
     void displayHeartBeat(int heartRate, int spo2);
+
+    /**
+     * @brief Display "Please Place Your Finger"
+     * 
+     */
     void displayFingerMessage();
+    
+    /**
+     * @brief Clear display
+     * 
+     */
     void clear();
 
 private:

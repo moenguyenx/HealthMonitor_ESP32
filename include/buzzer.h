@@ -11,7 +11,7 @@
 /*======================================================================================================================
  *                                              DEFINES AND MACROS
 ======================================================================================================================*/
-#define BUZZER_PIN    3     // Setup buzzer pin
+#define BUZZER_PIN    5     // Setup buzzer pin
 #define BEEP_DURATION 100   // Default duration for each beep in ms
 #define BEEP_INTERVAL 100   // Interval between beeps in ms
 #define ERR_BEEP      4
@@ -36,6 +36,5 @@
 /**
  * @brief Beep the buzzer :)
  * @param int Number of Beep
- * @param int Pin number
  */
 void beepBuzzer(int beepNum);

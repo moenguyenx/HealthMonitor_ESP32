@@ -1,84 +1,80 @@
-#include <Arduino.h>
 #include <Wire.h>
-#include <Adafruit_SSD1306.h>
-#include "MAX30105.h"
-#include "heartRate.h"
+#include <Arduino.h>
+#include "lcd.h"
+#include "sensor.h"
+#include "buzzer.h"
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+LCD lcd;
+HeartRateSensor sensor;
 
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-// Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-MAX30105 particleSensor;
+int32_t bufferLength = 100;
+int32_t spo2;
+int8_t validSPO2;
+int32_t heartRate;
+int8_t validHeartRate;
 
-const byte RATE_SIZE = 4; //Increase this for more averaging. 4 is good.
-byte rates[RATE_SIZE]; //Array of heart rates
-byte rateSpot = 0;
-long lastBeat = 0; //Time at which the last beat occurred
+void setup() 
+{
+    Serial.begin(115200);
+    Wire.begin();   
 
-float beatsPerMinute;
-int beatAvg;
+    // Initialize SSD1306
+    if(lcd.setupDisplay() == LCD_OK)
+    { 
+      lcd.displayMessage("Display OK");
+    }
+    delay(1000);
 
-void setup() {
-  Serial.begin(115200);
-  Serial.println("Max30102 Basic reading");
-  // if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64 0x78
-  //   Serial.println(F("SSD1306 allocation failed"));
-  //   for(;;);
-  // }
-  // delay(2000);
-  if (particleSensor.begin() == false)
-  {
-    Serial.println("MAX30102 was not found. Please check wiring/power. ");
-    while (1);
-  }
-  Serial.println("Place your index finger on the sensor with steady pressure.");
-  particleSensor.setup();
-  particleSensor.setPulseAmplitudeRed(0x0A); //Turn Red LED to low to indicate sensor is running
-  particleSensor.setPulseAmplitudeGreen(0); //Turn off Green LED
-  // display.clearDisplay();
+    // Initialize MAX30102
+    if(sensor.begin() == SENSOR_OK)
+    {
+      lcd.displayMessage("Sensor  OK");
+    }
+    else
+    {
+      lcd.displayMessage("Sensor  ERROR");
+    }
+    delay(1000);
 
-  // display.setTextSize(1);
-  // display.setTextColor(WHITE);
-  // display.setCursor(0, 10);
-  // Display static text
-  // display.println("Hello, world!");
-  // display.display(); 
+    lcd.displayMessage("System  OK");
+    beepBuzzer(OK_BEEP);
+    delay(1000);
 }
 
-void loop() {
-  long irValue = particleSensor.getIR();
-
-  if (checkForBeat(irValue) == true)
+void loop() 
+{
+  lcd.clear();
+  long irValue = sensor.readIR();
+  
+  if (irValue > 7000) 
   {
-    //We sensed a beat!
-    long delta = millis() - lastBeat;
-    lastBeat = millis();
+    tone(5, 1000, 100); // Beep once when finger is detected
 
-    beatsPerMinute = 60 / (delta / 1000.0);
-
-    if (beatsPerMinute < 255 && beatsPerMinute > 20)
+    sensor.readSamples(bufferLength, lcd);
+    
+    sensor.calculate(bufferLength, &spo2, &validSPO2, &heartRate, &validHeartRate);
+    
+    while(1)
     {
-      rates[rateSpot++] = (byte)beatsPerMinute; //Store this reading in the array
-      rateSpot %= RATE_SIZE; //Wrap variable
+      irValue = sensor.readIR();
+      if (irValue <= 7000) {
+        Serial.println("Finger removed. Exiting measurement loop.");
+        break;
+      }
 
-      //Take average of readings
-      beatAvg = 0;
-      for (byte x = 0 ; x < RATE_SIZE ; x++)
-        beatAvg += rates[x];
-      beatAvg /= RATE_SIZE;
+      sensor.continuousSampling();
+
+      lcd.displayReadings(heartRate, spo2);
+
+      if (checkForBeat(irValue)) 
+      {
+        lcd.displayHeartBeat(heartRate, spo2);
+      }
+      sensor.calculate(bufferLength, &spo2, &validSPO2, &heartRate, &validHeartRate);
     }
+  } 
+  else 
+  {
+    lcd.displayFingerMessage();
   }
-
-  Serial.print("IR=");
-  Serial.print(irValue);
-  Serial.print(", BPM=");
-  Serial.print(beatsPerMinute);
-  Serial.print(", Avg BPM=");
-  Serial.print(beatAvg);
-
-  if (irValue < 50000)
-    Serial.print(" No finger?");
-
-  Serial.println();
 }

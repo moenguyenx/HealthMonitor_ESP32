@@ -12,27 +12,18 @@ lcdStatus LCD::setupDisplay()
         status = LCD_ERR;
         beepBuzzer(ERR_BEEP);
         Serial.println(F("SSD1306 allocation failed"));
-        for (;;);
+        return status;
     }
     display.display();
     delay(1000);
     display.clearDisplay();
-    display.setTextSize(1);
-    display.setTextColor(SSD1306_WHITE);
-    display.setCursor(0, 0);
     beepBuzzer(OK_BEEP);
-    display.println(F("Display OK"));
-    display.display();
-    delay(1000);
-
     return status;
 }
 
 void LCD::displayMessage(const char* message) {
-  display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
   display.println(message);
   display.display();
 }
