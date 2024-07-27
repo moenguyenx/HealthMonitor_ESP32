@@ -14,12 +14,15 @@ sensorStatus HeartRateSensor::begin()
 
     sensorStatus status;
     status = SENSOR_OK;
-    if (particleSensor.begin() == false) {
+
+    if (particleSensor.begin() == false) 
+	{
         Serial.println("MAX30102 was not found. Please check wiring/power.");
         beepBuzzer(ERR_BEEP);
         status = SENSOR_ERR;
         return status;
     }
+
     particleSensor.setup(ledBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange);
     beepBuzzer(OK_BEEP);
     
@@ -32,13 +35,16 @@ void HeartRateSensor::readSamples(int32_t bufferLength, LCD &lcd)
   {
     while (!particleSensor.available()) 
     {
-      particleSensor.check();
+      	particleSensor.check();
     }
+
     redBuffer[i] = particleSensor.getRed();
     irBuffer[i] = particleSensor.getIR();
-    if (irBuffer[i] <= 7000) {
-      Serial.println("Finger removed. Exiting measurement loop.");
-      break;
+
+    if (irBuffer[i] <= 7000) 
+	{
+      	Serial.println("Finger removed. Exiting measurement loop.");
+      	break;
     }
 
     float percentage = ((float)(i + 1) / bufferLength) * 100;
@@ -50,20 +56,23 @@ void HeartRateSensor::readSamples(int32_t bufferLength, LCD &lcd)
 
 void HeartRateSensor::continuousSampling()
 {
-	//dumping the first 25 sets of samples in the memory and shift the last 75 sets of samples to the top
+	// Dumping the first 25 sets of samples in the memory and shift the last 75 sets of samples to the top
 	for (byte i = 25; i < 100; i++)
 	{
-	  redBuffer[i - 25] = redBuffer[i];
-	  irBuffer[i - 25] = irBuffer[i];
+	  	redBuffer[i - 25] = redBuffer[i];
+	  	irBuffer[i - 25] = irBuffer[i];
 	}
-	//take 25 sets of samples before calculating the heart rate.
+	// Take 25 sets of samples before calculating the heart rate.
 	for (byte i = 75; i < 100; i++)
 	{
-	  while (particleSensor.available() == false) //do we have new data?
-	    particleSensor.check(); //Check the sensor for new data
-	  redBuffer[i] = particleSensor.getRed();
-	  irBuffer[i] = particleSensor.getIR();
-	  particleSensor.nextSample(); //We're finished with this sample so move to next sample
+	  	while (particleSensor.available() == false)
+		{
+			// Do we have new data?
+	    	particleSensor.check(); //Check the sensor for new data
+		} 
+	  	redBuffer[i] = particleSensor.getRed();
+	  	irBuffer[i] = particleSensor.getIR();
+	  	particleSensor.nextSample(); //We're finished with this sample so move to next sample
 	}
 }
 
@@ -75,6 +84,6 @@ long HeartRateSensor::readIR()
 
 void HeartRateSensor::calculate(int32_t bufferLength, int32_t* spo2, int8_t* validSPO2, int32_t* heartRate, int8_t* validHeartRate) 
 {
-  maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, spo2, validSPO2, heartRate, validHeartRate);
+	maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, spo2, validSPO2, heartRate, validHeartRate);
 }
 

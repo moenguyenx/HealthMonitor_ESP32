@@ -6,7 +6,6 @@
 ======================================================================================================================*/
 #include <Arduino.h>
 #include "MAX30105.h"
-#include "heartRate.h"
 #include "spo2_algorithm.h"
 #include "lcd.h"
 /*======================================================================================================================
@@ -79,7 +78,7 @@ public:
 
 private:
     MAX30105 particleSensor;
-    
+
     #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
     // Arduino Uno doesn't have enough SRAM to store 100 samples of IR led data and red led data in 32-bit format
     // To solve this problem, 16-bit MSB of the sampled data will be truncated. Samples become 16-bit data.
