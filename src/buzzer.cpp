@@ -1,6 +1,7 @@
 #include "buzzer.h"
 
-void beepBuzzer(int beepNum) {
+void beepBuzzer(int beepNum) 
+{
     unsigned long previousMillis = 0;
     int currentBeep = 0;
 
